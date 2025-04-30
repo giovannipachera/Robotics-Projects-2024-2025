@@ -11,7 +11,8 @@ ros::Publisher pub;
 first_project::Sector_time sector_time;
 int current_sector;
 ros::Time initial_time;
-float initial_speed_kmh;
+float sum_speed_kmh;
+int counter_sector_data;
 
 void callback(const geometry_msgs::PointStampedConstPtr& msg1, const sensor_msgs::NavSatFixConstPtr& msg2)
 {
@@ -31,39 +32,48 @@ void callback(const geometry_msgs::PointStampedConstPtr& msg1, const sensor_msgs
     if (current_sector == 0) // Initial state: car is located in sector one
     {
         current_sector = 1;
+
+        counter_sector_data = 1;
+        sum_speed_kmh = 0;
         initial_time = current_time;
-        initial_speed_kmh = current_speed_kmh;
     }
     else if (current_sector == 1 && (current_lat > lat_sec_2 - 0.0005 && current_lat < lat_sec_2 + 0.0005) && (current_lon > lon_sec_2 - 0.0005 && current_lon < lon_sec_2 + 0.0005))
     {
         current_sector = 2;
+        
+        counter_sector_data = 1;
+        sum_speed_kmh = 0;
         initial_time = current_time;
-        initial_speed_kmh = current_speed_kmh; 
     }
     else if (current_sector == 2 && (current_lat > lat_sec_3 - 0.0005 && current_lat < lat_sec_3 + 0.0005) && (current_lon > lon_sec_3 - 0.0005 && current_lon < lon_sec_3 + 0.0005))
     {
         current_sector = 3; 
+        
+        counter_sector_data = 1;
+        sum_speed_kmh = 0;
         initial_time = current_time;
-        initial_speed_kmh = current_speed_kmh; 
     }
     else if (current_sector == 3 && (current_lat > lat_sec_1 - 0.0005 && current_lat < lat_sec_1 + 0.0005) && (current_lon > lon_sec_1 - 0.0005 && current_lon < lon_sec_1 + 0.0005))
     {
-        current_sector = 1; 
-        initial_time = current_time;
-        initial_speed_kmh = current_speed_kmh; 
+        current_sector = 1;
+        
+        counter_sector_data = 1; 
+        sum_speed_kmh = 0;
+        initial_time = current_time; 
     }
 
     current_sector_time = current_time.toSec() - initial_time.toSec();
-    current_sector_mean_speed = (initial_speed_kmh + current_speed_kmh) / 2;
+    current_sector_mean_speed = (sum_speed_kmh + current_speed_kmh) / counter_sector_data;
 
     // Update of custom message
     sector_time.current_sector = current_sector;
     sector_time.current_sector_time = current_sector_time;
-    sector_time.current_sector_mean_speed = current_sector_mean_speed;
-
-    // ROS_INFO("current_sector: %d current_sector_time: %f current_sector_mean_speed: %f", sector_time.current_sector, sector_time.current_sector_time, sector_time.current_sector_mean_speed);
+    sector_time.current_sector_mean_speed = current_sector_mean_speed / 3.6; // Convert to m/s
 
     pub.publish(sector_time);
+
+    sum_speed_kmh += current_speed_kmh;
+    counter_sector_data++;
 }
 
 int main(int argc, char **argv){

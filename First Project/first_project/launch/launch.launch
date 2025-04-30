@@ -22,10 +22,10 @@
 	<param name="lon_sec_3" value="9.286964" />
 
 	<!-- Nodes execution -->
-	<node pkg="first_project" type="odometer" name="odometer_node" output="screen"/>
-	<node pkg="first_project" type="gps_to_odom" name="gps_to_odom_server"/>
-	<node pkg="first_project" type="gps_odometer" name="gps_odometer_node"/>
-	<node pkg="first_project" type="sector_times" name="sector_times_node"/>
+	<node pkg="first_project" type="odometer" name="odometer_node" />
+	<node pkg="first_project" type="gps_to_odom" name="gps_to_odom_server" />
+	<node pkg="first_project" type="gps_odometer" name="gps_odometer_node" />
+	<node pkg="first_project" type="sector_times" name="sector_times_node" />
 
 	<!-- rviz configuration file -->
   	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find first_project)/rviz/cfg.rviz" />

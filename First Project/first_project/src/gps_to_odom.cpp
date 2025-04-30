@@ -12,6 +12,7 @@ const double f = 1.0 / 298.257223563;
 const double b = a * (1 - f);
 const double e_sq = f * (2 - f);
 
+// Conversion gps -> ECEF
 void gpsToECEF(double lat, double lon, double alt, double& x, double& y, double& z) {
     lat *= DEG2RAD;
     lon *= DEG2RAD;
@@ -22,6 +23,7 @@ void gpsToECEF(double lat, double lon, double alt, double& x, double& y, double&
     z = ((1 - e_sq) * N + alt) * sin(lat);
 }
 
+// Conversion ECEF -> ENU
 void ecefToENU(double x, double y, double z,
                double x0, double y0, double z0,
                double lat0, double lon0,
@@ -67,6 +69,7 @@ int main(int argc, char **argv)
 
     ros::ServiceServer service = nh.advertiseService("gps_to_odom", convertCallback);
     ROS_INFO("Service 'gps_to_odom' ready.");
+    
     ros::spin();
 
     return 0;

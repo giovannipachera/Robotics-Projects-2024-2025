@@ -13,6 +13,8 @@ tf::TransformBroadcaster *odom_broadcaster;
 // State variables
 double x = 0.0, y = 0.0, z = 0.0;
 double last_x, last_y, yaw;
+ros::Time last_time;
+double last_yaw = 0.0;
 
 // Variables for smoothing filter
 const double alpha = 0.1;
@@ -21,6 +23,13 @@ double filtered_yaw = 0.0;
 bool has_filtered = false;
 bool has_last_position = false;
 bool ready_to_publish = false;
+
+double normalize_angle(double angle) {
+    while (angle > M_PI) angle -= 2.0 * M_PI;
+    while (angle < -M_PI) angle += 2.0 * M_PI;
+
+    return angle;
+}
 
 void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 {
@@ -57,6 +66,9 @@ void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
             }
         }
 
+        double dx = x - last_x;
+        double dy = y - last_y;
+        
         last_x = x;
         last_y = y;
         has_last_position = true;
@@ -66,14 +78,31 @@ void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg)
 
         geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(yaw);
 
-        // Publish odometry message
+
         nav_msgs::Odometry odom_msg;
+
+        
+        // Publish odometry message
+
+        // Calculate speed and omega
+        ros::Time current_time = msg->header.stamp;
+        double dt = (current_time - last_time).toSec();
+        double distance = sqrt(dx * dx + dy * dy);
+        double speed_ms = (dt > 0) ? distance / dt : 0.0;
+        double dyaw = normalize_angle(yaw - last_yaw);
+        double omega = (dt > 0) ? dyaw / dt : 0.0;
+        
+        last_time = current_time;
+        last_yaw = yaw;
+        
         odom_msg.header.stamp = msg->header.stamp;
         odom_msg.header.frame_id = "odom";
         odom_msg.child_frame_id = "gps";
         odom_msg.pose.pose.position.x = x;
         odom_msg.pose.pose.position.y = y;
         odom_msg.pose.pose.position.z = z;
+        odom_msg.twist.twist.linear.x = speed_ms;
+        odom_msg.twist.twist.angular.z = omega;
         odom_msg.pose.pose.orientation = odom_quat;
 
         odom_pub.publish(odom_msg);
