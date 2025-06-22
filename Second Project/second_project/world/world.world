@@ -1,0 +1,22 @@
+define robot model
+(
+  name "robot"
+  size [0.5 0.5 0.5]
+  origin [0 0 0 0]
+  gui_nose 1
+  gui_circle 1
+  laser_return 1
+  color "red"
+  drive "diff"
+
+  ranger
+  (
+    pose [0.0 0.0 0.0 0.0]
+    samples 180
+    resolution 1
+    range [0.05 8.0]
+    fov 180
+  )
+)
+
+robot( pose [1.0 1.0 0.0 0.0] )
