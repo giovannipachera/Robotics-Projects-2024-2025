@@ -21,11 +21,9 @@ void odomCallback(const nav_msgs::Odometry::ConstPtr& msg) {
         return;
     }
 
-    // Salta se timestamp identico al precedente (evita TF_REPEATED_DATA)
     if (msg->header.stamp == last_stamp) return;
     last_stamp = msg->header.stamp;
 
-    // Salta se la pose non è cambiata
     if (!pose_changed(msg->pose.pose, last_pose)) return;
     last_pose = msg->pose.pose;
 

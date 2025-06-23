@@ -56,7 +56,6 @@ void transform_and_insert(const sensor_msgs::LaserScan::ConstPtr& scan,
 
 void callback(const sensor_msgs::LaserScan::ConstPtr& front,
               const sensor_msgs::LaserScan::ConstPtr& back) {
-    // Controllo consistenza tra i due scanner
     if (std::abs(front->angle_increment - back->angle_increment) > 1e-6) {
         ROS_WARN_THROTTLE(10, "Laser scans have different angle_increment. Aborting.");
         return;
@@ -70,7 +69,7 @@ void callback(const sensor_msgs::LaserScan::ConstPtr& front,
     transform_and_insert(back,  bins, angle_increment, "base_link", min_range_back,  max_range_back);
 
     sensor_msgs::LaserScan combined;
-    combined.header.stamp = front->header.stamp;  // IMPORTANT: usa lo stesso tempo del bag!
+    combined.header.stamp = front->header.stamp;
     combined.header.frame_id = "base_link";
     combined.angle_min = ANGLE_MIN;
     combined.angle_max = ANGLE_MAX;

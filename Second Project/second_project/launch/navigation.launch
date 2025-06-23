@@ -1,0 +1,41 @@
+<launch>
+  <arg name="map_file"   default="$(find second_project)/world/map.yaml"/>
+  <arg name="world_file" default="$(find second_project)/world/world.world"/>
+
+  <param name="/use_sim_time" value="true"/>
+
+  <node name="stageros" pkg="stage_ros" type="stageros" args="$(arg world_file)" output="screen">
+    <remap from="base_scan" to="scan"/>
+  </node>
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+  <node name="odom_to_tf" pkg="second_project" type="odom_to_tf" output="screen" />
+  <node name="csv_goal_sender" pkg="second_project" type="send_goals_from_csv" output="screen" />
+
+  <node name="amcl" pkg="amcl" type="amcl" output="screen">
+    <param name="base_frame_id" value="base_link"/>
+    <param name="odom_frame_id" value="odom"/>
+    <param name="global_frame_id" value="map"/>
+    <param name="scan_topic" value="scan"/>
+    <param name="initial_pose_x" value="-7.0"/>
+    <param name="initial_pose_y" value="-2.5"/>
+    <param name="initial_pose_a" value="0.7854"/>
+    <param name="use_map_topic" value="true"/>
+  </node>
+
+  <node name="move_base" pkg="move_base" type="move_base" output="screen">
+    <rosparam file="$(find second_project)/config/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find second_project)/config/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find second_project)/config/global_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find second_project)/config/local_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find second_project)/config/dwa_local_planner_params.yaml" command="load"/>
+    <rosparam file="$(find second_project)/config/move_base_params.yaml" command="load"/>
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find second_project)/rviz/config_2.rviz" />
+
+  <node name="initialpose_pub" pkg="rostopic" type="rostopic"
+        args="pub -1 /initialpose geometry_msgs/PoseWithCovarianceStamped 
+'{header: {frame_id: map}, pose: {pose: {position: {x: -7.0, y: -2.5, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.3827, w: 0.9239}}, covariance: [0.25, 0, 0, 0, 0, 0, 0, 0.25, 0, 0, 0, 0, 0, 0, 0.25, 0, 0, 0, 0, 0, 0, 0.0685389, 0, 0, 0, 0, 0, 0, 0.0685389, 0, 0, 0, 0, 0, 0, 0.0685389]}}'" />
+
+</launch>
