@@ -4,16 +4,16 @@ DWAPlannerROS:
   max_vel_x: 0.3
   min_vel_x: 0.0
   max_vel_theta: 0.8
-  min_vel_theta: 0.05         # 🔽 rotazioni più morbide e precise
+  min_vel_theta: 0.05
 
   acc_lim_x: 1.5
   acc_lim_theta: 3.0
 
-  yaw_goal_tolerance: 0.4     # 🔼 più tolleranza angolare
+  yaw_goal_tolerance: 0.4
   xy_goal_tolerance: 0.4
   latch_xy_goal_tolerance: false
 
-  sim_time: 1.2               # 🔽 traiettorie più corte → meno curve larghe
+  sim_time: 1.2
   sim_granularity: 0.025
   vx_samples: 20
   vtheta_samples: 40
